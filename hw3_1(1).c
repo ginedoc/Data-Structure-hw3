@@ -127,6 +127,7 @@ void solve_puzzle(char *map,int n,pos *p,pos *first){
 		new_map[p->x+p->y*M] = '*';		
 		t_x = p->x + imove[n];
 		t_y = p->y + jmove[n];
+		printf("%d %d ",t_x,t_y);	
 		// keep the path
 		pos*nblock= (pos*)malloc(sizeof(pos));
 		p->next = nblock;
