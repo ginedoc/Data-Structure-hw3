@@ -21,14 +21,14 @@ int main(){
 	verify_MN();
 	char map[N*M];
 	read_map(map);
-	printf("%d %d\n", M,N);
-	printf("%d %d\n%d %d\n", start.x,start.y,end.x,end.y);
 
 	map[start.x+start.y*M] = '0';
 	map[end.x+end.y*M] = '0';
 	if(!solve_puzzle(map,start,end)){
 		printf("No solution\n");
 	}
+	map[start.x+start.y*M] = 's';
+	map[end.x+end.y*M] = 'd';
 	print(map);
 }
 
@@ -81,17 +81,11 @@ void read_map(char *map){
 		exit(1);
 	}
 	i=0;
-	j=0;
 	in = fopen("in.txt","r");
 
 	while((c = fgetc(in))!=EOF){
 		if(c == 's' || c == 'd' || c == '1' || c == '0'){
-			map[j*M+i] = c;
-			i++;
-		}
-		else if(c == '\n'){
-			i=0;
-			j++;			
+			map[i++] = c;
 		}
 		else continue;
 	}
@@ -103,10 +97,10 @@ Pos position(int x,int y){
 	return p;
 }
 char solve_puzzle(char *map,Pos start,Pos end){
-	if(!map[start.x+start.y*M]){
-		map[start.x+start.y*M] = '1';
+	if(map[start.x+start.y*M] == '0'){
+		map[start.x+start.y*M] = '*';
 
-		if(!map[end.x+end.y*M]){
+		if(map[end.x+end.y*M] == '0'){
 			for(i=0;i<8;i++){
 				if(!solve_puzzle(map,position(start.x+imove[i],start.y+jmove
 					[i]),end))
@@ -117,8 +111,8 @@ char solve_puzzle(char *map,Pos start,Pos end){
 	return map[end.x+end.y*M];
 }
 void print(char map[N*M]){
-	for(i=0;i<N;i++){
-		for(j=0;j<M;j++){
+	for(j=0;j<N;j++){
+		for(i=0;i<M;i++){
 			switch(map[i+j*M]){
 				case 's':
 					printf("s");
@@ -126,11 +120,14 @@ void print(char map[N*M]){
 				case 'd':
 					printf("d");
 				break;
-				case '0':
-					printf("*");
-				break;
 				case '1':
 					printf("1");
+				break;
+				case '0':
+					printf("0");
+				break;
+				case '*':
+					printf("*");
 				break;
 			}
 		}
