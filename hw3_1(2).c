@@ -5,7 +5,8 @@ typedef struct {
 	int x;
 	int y;
 }Pos;
-int M,N;
+int M=0;
+int N=0;
 Pos start,end;
 int i,j,k;
 int imove[8] = {-1,0,1,-1,1,-1,0,1};
@@ -21,15 +22,20 @@ int main(){
 	verify_MN();
 	char map[N*M];
 	read_map(map);
+	// print(map);
 
 	map[start.x+start.y*M] = '0';
 	map[end.x+end.y*M] = '0';
-	if(!solve_puzzle(map,start,end)){
+	if(solve_puzzle(map,start,end) == '0'){
 		printf("No solution\n");
 	}
-	map[start.x+start.y*M] = 's';
-	map[end.x+end.y*M] = 'd';
-	print(map);
+	else{
+		map[start.x+start.y*M] = 's';
+		map[end.x+end.y*M] = 'd';	
+		print(map);
+	}	
+	
+
 }
 
 /************************************************************/
@@ -67,8 +73,8 @@ void verify_MN(){
 	}
 
 
-	N = j+1;
-	M = (k+1)/(j+1);
+	M = j+1;
+	N = (k+1)/(j+1);
 	fclose(in);
 }
 void read_map(char *map){
@@ -102,9 +108,12 @@ char solve_puzzle(char *map,Pos start,Pos end){
 
 		if(map[end.x+end.y*M] == '0'){
 			for(i=0;i<8;i++){
-				if(!solve_puzzle(map,position(start.x+imove[i],start.y+jmove
-					[i]),end))
+				printf("%c\n",  map[end.x+end.y*M]);
+				if(!solve_puzzle(map,position(start.x+imove[i],start.y+jmove[i]),end) == '0')
+				{
 					map[start.x+start.y*M] = '0';
+					printf("go\n");
+				}
 			}
 		}
 	}
@@ -129,8 +138,12 @@ void print(char map[N*M]){
 				case '*':
 					printf("*");
 				break;
+				default:
+					printf("x\n");
+				break;
 			}
 		}
 		printf("\n");
 	}
+	printf("\n");
 }
