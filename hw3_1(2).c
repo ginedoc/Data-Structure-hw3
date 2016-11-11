@@ -8,7 +8,7 @@ typedef struct {
 int M=0;
 int N=0;
 int step=0;
-Pos start,end;
+Pos start,end,kstart;
 int i,j,k;
 int imove[8] = {-1,0,1,-1,1,-1,0,1};
 int jmove[8] = {-1,-1,-1,0,0,1,1,1};
@@ -16,26 +16,22 @@ int jmove[8] = {-1,-1,-1,0,0,1,1,1};
 void verify_MN();
 void read_map(char *map);
 Pos position(int,int);
-char solve_puzzle(char *map,Pos start,Pos end);
-void print(char *map);
+void solve_puzzle(char *map,Pos start,Pos end,void (*keep)(char*,FILE *),FILE *out);
+void print(char *map,FILE *out);
 
 int main(){
+	FILE *out;
+	out = fopen("out.txt","w");
 	verify_MN();
 	char map[M*N];
 	read_map(map);
 
+	step = 0;
 	map[start.x+start.y*M] = '0';
 	map[end.x+end.y*M] = '0';
-	if(!solve_puzzle(map,start,end)){
-		printf("No solution\n");
-	}
-	else{
-		map[start.x+start.y*M] = 's';
-		map[end.x+end.y*M] = 'd';	
-		print(map);
-		printf("%d steps\n", step-1);
-	}	
-	
+	solve_puzzle(map,start,end,print,out);
+
+	fclose(out);
 
 }
 
@@ -56,6 +52,8 @@ void verify_MN(){
 			k++;
 			start.x = 1+i++;
 			start.y = 1+j;
+
+			kstart = start;
 		}
 		if(c == 'd'){
 			k++;
@@ -75,7 +73,6 @@ void verify_MN(){
 
 	M = (j+1)+2;
 	N = ((k+1)/(j+1))+2;	
-	printf("%d %d\n", M,N);
 	fclose(in);
 }
 void read_map(char *map){
@@ -101,56 +98,80 @@ void read_map(char *map){
 	}
 	fclose(in);
 
-	print(map);
 }
 Pos position(int x,int y){
-	Pos p ={x,y};
+	Pos p;
+	p.x = x;
+	p.y = y;
 	return p;
 }
-char solve_puzzle(char *map,Pos start,Pos end){
+void solve_puzzle(char *map,Pos start,Pos end,void (*keep)(char*,FILE*),FILE *out){
 	if(map[start.x+start.y*M] == '0'){
-		step++;
 		map[start.x+start.y*M] = '*';
+		step++;
+		if(map[end.x+end.y*M] == '*'){
+				map[kstart.x+kstart.y*M] = 's';
+				map[end.x+end.y*M] = 'd';	
 
-		if(map[end.x+end.y*M] == '0'){
-			for(i=0;i<8;i++){
-				if(!solve_puzzle(map,position(start.x+imove[i],start.y+jmove[i]),end))
-				{
-					map[start.x+start.y*M] = '0';
-				}
-			}
+
+				keep(map,out);
+
+				fprintf(out,"step:%d\n",step);
+				fprintf(out, "-------------------\n" );
+				// printf("step:%d\n",step);
+				step = 0;
+
+				map[start.x+start.y*M] = '0';
+				map[end.x+end.y*M] = '0';	
 		}
+		else{
+				solve_puzzle(map,position((start.x+imove[0]),(start.y+jmove[0])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[1]),(start.y+jmove[1])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[2]),(start.y+jmove[2])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[3]),(start.y+jmove[3])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[4]),(start.y+jmove[4])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[5]),(start.y+jmove[5])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[6]),(start.y+jmove[6])),end,keep,out);
+				solve_puzzle(map,position((start.x+imove[7]),(start.y+jmove[7])),end,keep,out);
+		}
+		map[start.x+start.y*M] = '0';
 	}
-	return map[end.x+end.y*M];
 }
-void print(char map[N*M]){
+void print(char map[N*M],FILE *out){
 	for(j=0;j<N;j++){
 		for(i=0;i<M;i++){
-			switch(map[i+j*(M)]){
+			switch(map[i+j*M]){
 				case 's':
-					printf("s");
+					fprintf(out,"s");
+					// printf("s");
 				break;
 				case 'd':
-					printf("d");
+					fprintf(out,"d");
+					// printf("d");
 				break;
 				case '1':
-					printf("1");
+					fprintf(out,"1");
+					// printf("1");
 				break;
 				case '0':
-					printf("0");
+					fprintf(out,"0");
+					// printf("0");
 				break;
 				case '*':
-					printf("*");
+					fprintf(out,"*");
+					// printf("*");
 				break;
 				case 'w':
-					printf(" ");
+					fprintf(out," ");
+					// printf(" ");
 				break;
 				default:
-					printf("x");
+					fprintf(out,"x");
+					// printf("x");
 				break;
 			}
 		}
-		printf("\n");
+		fprintf(out,"\n");
+		// printf("\n");
 	}
-	printf("\n");
 }
